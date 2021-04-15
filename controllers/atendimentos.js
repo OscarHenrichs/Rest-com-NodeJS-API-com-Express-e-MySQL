@@ -24,10 +24,16 @@ module.exports = app => {
         //res.send(`Rota Atendimentos Post | adicionado o atendidomento do Cliente ${atendimento.cliente} `);
     })
 
-    app.patch('/atendimento/:id', (req, res) => {
+    app.patch('/atendimentos/:id', (req, res) => {
         const id = parseInt(req.params.id);
         const valores = req.body;
 
         Atendimento.alteraPorId(id, valores, res);
+    })
+
+    app.delete('/atendimentos/:id', (req, res) => {
+        const id = parseInt(req.params.id);
+
+        Atendimento.deletaPorId(id, res);
     })
 }

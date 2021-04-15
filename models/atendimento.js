@@ -39,7 +39,7 @@ class Atendimento {
                 if (erro) {
                     res.status(400).json(erro);
                 }else{
-                    res.status(201).json(resultados);
+                    res.status(201).json(atendimentoDatado);
                 }
             })
 
@@ -73,14 +73,29 @@ class Atendimento {
     }
     
     alteraPorId(id, valores, res) {
-        const sql = `SELECT * FROM atendimentos WHERE id=${id}`
+        if(valores.data) {
+            valores.data = moment(valores.data, 'DD-MM-YYYY').format('YYYY-MM-DD hh:mm:ss')
+        }
 
-        connect.query(sql, (erro, resultados) =>{
-            const atendimento = resultados[0];
+        const sql = 'UPDATE atendimentos SET ? WHERE id=?'
+
+        connect.query(sql, [valores, id], (erro, resultados) =>{
             if (erro) {
                 res.status(400).json(erro);
             }else{
-                res.status(200).json(atendimento);
+                res.status(200).json({...valores, id});
+            }
+        })
+    }
+
+    deletaPorId(id, res) {
+        const sql = 'DELETE FROM atendimentos WHERE id=?'
+
+        connect.query(sql, id, (erro, resultados) =>{
+            if (erro) {
+                res.status(400).json(erro);
+            }else{
+                res.status(200).json({"removido": "true", id});
             }
         })
     }
