@@ -1,37 +1,22 @@
 const moment = require('moment');
 const connect = require('../infra/connectMySQL');
+const AtendimentoValidacao = require('./validacao/atendimento');
 
-class Atendimento {
-    adiciona(atendimento, res) {
+class AtendimentoModel {
+    adiciona(atendimentoEnviado, res) {
 
-        const dataCreate = moment().format('YYYY-MM-DD hh:mm:ss') 
-        const data = moment(atendimento.data, 'DD-MM-YYYY').format('YYYY-MM-DD hh:mm:ss')
+        const validacoes = AtendimentoValidacao.validaTodos(atendimentoEnviado)
 
-
-        const validaData = moment(data).isSameOrAfter(dataCreate);
-        const validaCliente = atendimento.cliente.length >= 5
-
-        const validacoes = [
-            {
-                nome: 'data',
-                valido: validaData,
-                mensagem: 'Data deve ser maior ou igual a atual!'
-            },
-            {
-                nome: 'cliente',
-                valido: validaCliente,
-                mensagem: 'Cliente deve ter pelo menos cinco caracteres!'
-            }
-        ]
-
-        const erros = validacoes.filter(campo => !campo.valido)
+        const erros = validacoes[2].filter(campo => !campo.valido)
         const existemErros = erros.length
 
         if (existemErros){
-            res.status(400).json(erros)
+            res.status(400).json({...atendimentoEnviado, erros})
         }else{
 
-            const atendimentoDatado = {...atendimento, dataCreate, data};
+            const data = validacoes[0]
+            const dataCriada = validacoes[1]
+            const atendimentoDatado = {...atendimentoEnviado, data, dataCriada};
 
             const sql = 'INSERT INTO atendimentos SET ?'
 
@@ -39,7 +24,7 @@ class Atendimento {
                 if (erro) {
                     res.status(400).json(erro);
                 }else{
-                    res.status(201).json(atendimentoDatado);
+                    res.status(201).json({ "id":resultados.insertId.toString(), ...atendimentoDatado });
                 }
             })
 
@@ -102,4 +87,4 @@ class Atendimento {
 
 }
 
-module.exports = new Atendimento;
+module.exports = new AtendimentoModel;

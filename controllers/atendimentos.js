@@ -21,7 +21,6 @@ module.exports = app => {
 
         Atendimento.adiciona(atendimento, res);
 
-        //res.send(`Rota Atendimentos Post | adicionado o atendidomento do Cliente ${atendimento.cliente} `);
     })
 
     app.patch('/atendimentos/:id', (req, res) => {
